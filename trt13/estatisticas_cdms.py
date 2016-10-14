@@ -128,8 +128,10 @@ print('Aderência total:', percent_aderencia)
 dict_listas_passadas['Arquivado'] = quant_cards
 
 valores_percentuais = list()
+valores_absolutos = list()
 for lista in nomes_listas_ordem_cronologica:
     valores_percentuais.append(round(dict_listas_passadas[lista]/quant_cards, 2))
+    valores_absolutos.append(dict_listas_passadas[lista])
 
 agora = datetime.datetime.now()
 ano_atual = agora.year
@@ -156,9 +158,13 @@ layout = go.Layout(
     barmode='overlay'
 )
 
+lista_quant_absoluta = [('#'+str(valor)) for valor in valores_absolutos]
+print('Absoluta: ', lista_quant_absoluta)
+
 data_aderencia = go.Bar(
             x=list(nomes_listas_ordem_cronologica),
             y=list(valores_percentuais),
+            text=lista_quant_absoluta,
             marker=dict(
             color=['rgb(30,144,255)', 'rgb(0,0,128)',
                    'rgb(60,179,113)', 'rgb(123,104,238)',
