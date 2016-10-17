@@ -107,6 +107,74 @@ taxa_retorno_homologacao = quant_cards_retornados_homologacao/quants_cards_total
 taxa_retorno_homologacao = 0.28
 print('Taxa retorno: ', taxa_retorno_homologacao)
 
+
+#taxa de retorno dos testes
+quants_cards_total_testando = 0
+quant_cards_retornados_testes = 0
+# for cartao in lista_cartoes_fechados_manutencao:
+#     if cartao.card_created_date.year < 2016:
+#         continue
+#     for movimento in cartao.list_movements():
+#         fonte = movimento['source']
+#         destino = movimento['destination']
+#         if fonte['name']=='Testando':
+#             quants_cards_total_testando += 1
+#             print('Testando:',quants_cards_total_testando)
+#         else:
+#             continue
+#         if fonte['name']=='Testando' and destino['name'] not in ('Testado', 'Homologando', 'Homologado', 'Implantando', 'Implantado'):
+#             quant_cards_retornados_testes += 1
+#             print('Retornados testes:',quant_cards_retornados_testes)
+
+# taxa_retorno_testes = quant_cards_retornados_testes/quants_cards_total_testando
+taxa_retorno_testes = 0.08
+print('Taxa retorno testes: ', taxa_retorno_testes)
+
+#taxa de retorno da revisão
+quants_cards_total_revisando = 0
+quant_cards_retornados_revisao = 0
+# for cartao in lista_cartoes_fechados_manutencao:
+#     if cartao.card_created_date.year < 2016:
+#         continue
+#     for movimento in cartao.list_movements():
+#         fonte = movimento['source']
+#         destino = movimento['destination']
+#         if fonte['name']=='Revisando':
+#             quants_cards_total_revisando += 1
+#             print('Revisando:',quants_cards_total_revisando)
+#         else:
+#             continue
+#         if fonte['name']=='Revisando' and destino['name'] not in ('Revisado', 'Testando', 'Testado', 'Homologando', 'Homologado', 'Implantando', 'Implantado'):
+#             quant_cards_retornados_revisao += 1
+#             print('Retornados revisão:',quant_cards_retornados_revisao)
+
+# taxa_retorno_revisao = quant_cards_retornados_revisao/quants_cards_total_revisando
+taxa_retorno_revisao = 0.06
+print('Taxa retorno revisão: ', taxa_retorno_revisao)
+
+#taxa de retorno do feito
+quants_cards_total_fazendo = 0
+quant_cards_retornados_feito = 0
+# for cartao in lista_cartoes_fechados_manutencao:
+#     if cartao.card_created_date.year < 2016:
+#         continue
+#     for movimento in cartao.list_movements():
+#         fonte = movimento['source']
+#         destino = movimento['destination']
+#         if fonte['name']=='Fazendo':
+#             quants_cards_total_fazendo += 1
+#             print('Fazendo:',quants_cards_total_fazendo)
+#         else:
+#             continue
+#         if fonte['name']=='Fazendo' and destino['name'] not in ('Feito', 'Revisando', 'Revisado', 'Testando', 'Testado', 'Homologando', 'Homologado', 'Implantando', 'Implantado'):
+#             quant_cards_retornados_feito += 1
+#             print('Retornados feito:',quant_cards_retornados_feito)
+
+# taxa_retorno_feito = quant_cards_retornados_feito/quants_cards_total_fazendo
+taxa_retorno_feito = 0.15
+print('Taxa retorno fazendo: ', taxa_retorno_feito)
+
+
 quant_cards = 178
 dict_listas_passadas = {'Feito': 95, 'Testado': 97, 'Homologado': 47, 'Implantado': 162, 'Revisado': 98}
 
@@ -172,11 +240,14 @@ data_aderencia = go.Bar(
             name='Taxa de Aderência'
     )
 
-valores_percentuais_retorno = [0, 0, 0, round((0.28/0.26)-1, 2), 0, 0]
+valores_reais_percentuais_retorno = [0.15, 0.06, 0.08, 0.28, 0, 0]
+valores_percentuais_retorno = [round(0.15*0.53, 2), round(0.06*0.55, 2), round(0.08*0.54, 2), round((0.28*0.26), 2), 0, 0]
 
+lista_quant_absoluta_retorno = [(str(valor)+'%') for valor in valores_reais_percentuais_retorno]
 data_retorno = go.Bar(
             x=list(nomes_listas_ordem_cronologica),
             y=list(valores_percentuais_retorno),
+            text=lista_quant_absoluta_retorno,
             marker=dict(color='rgb(255,0,0)'),
             name='Taxa de Retorno'
     )
