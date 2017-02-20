@@ -1,64 +1,21 @@
 from trello import trelloclient
+from trt13.leitor_configuracao import configuracao
 import plotly.graph_objs as go
 import sys
 import plotly
 import datetime
-import os
 
-'''
-TRELLO_API_KEY=152afd0574f3735b3925155d04b67223
-TRELLO_API_SECRET=b738051312e8b8d79cf7d8f8635e6882c6f42c2e6fab08fb23154d9bfa209e84
-TRELLO_TEST_BOARD_COUNT=10
-TRELLO_TEST_BOARD_NAME=maratonapje
-TRELLO_TOKEN=cc24b6e72362006df2d75a3465f53317f48ea760914e5958173ca389f4b8a346'''
-
-trello = trelloclient.TrelloClient('152afd0574f3735b3925155d04b67223', None, 'cc24b6e72362006df2d75a3465f53317f48ea760914e5958173ca389f4b8a346', None)
-
-"""
-brd_maratona = trello.get_board('C13fMWkd')
-quant_fechados = len(brd_maratona.get_cards(card_filter='closed'))
-quant_abertos = len(brd_maratona.get_cards(card_filter='open'))
-lista_quant = [quant_abertos, quant_fechados]
-
-lista_estados = ['Abertos', 'Fechados']
-data = [go.Bar(
-            x=lista_estados,
-            y=lista_quant
-    )]
-
-
-map_listas = dict()
-
-for lista in brd_maratona.all_lists():
-    print(lista.name)
-    map_listas[lista.name] = len(lista.list_cards())
-
-print("Chaves:", list(map_listas.keys()))
-print("Valores:", list(map_listas.values()))
-data2 = [go.Bar(
-            x=list(map_listas.keys()),
-            y=list(map_listas.values())
-    )]
-
-# plotly.offline.plot(data, filename='basic-bar.html')
-# plotly.offline.plot(data2, filename='basic-bar2.html')
-
-
-#api_key, api_secret=None, token=None, token_secret=None):
-
-print(len(brd_maratona.get_cards()))
-print(brd_maratona.get_cards(card_filter='closed'))
-print(len(brd_maratona.all_lists()[1].list_cards()))
-"""
+trello = trelloclient.TrelloClient(configuracao['TRELLO_API_KEY'], None, configuracao['OAUTH_TOKEN'], None)
 
 #média de tempo em homologação
 #"datetime saída de homologação" - "datetime chegada homologação"
-brd_manutencao = trello.get_board('ImvgfhEa')
+brd_manutencao = trello.get_board(configuracao['ID_BOARD'])
 data_entrada = None
 data_saida = None
 tempos = list()
 padrao_entrada = {'entrada':None,'saida':None,'total':0,'quant':0}
-tempo_medio_dic = {'Homologando':padrao_entrada,'Fazendo':padrao_entrada, 'Aguardando':padrao_entrada, 'Testando':padrao_entrada, 'Implantando':padrao_entrada}
+tempo_medio_dic = {'Homologando':padrao_entrada,'Fazendo':padrao_entrada, 'Aguardando':padrao_entrada,
+                   'Testando':padrao_entrada, 'Implantando':padrao_entrada}
 
 #porcentagem que passou em cada lista
 quant_fechados_manutencao = len(brd_manutencao.get_cards(card_filter='closed'))
@@ -67,14 +24,13 @@ print('Quantidade cartões:',quant_fechados_manutencao)
 
 nomes_listas_ordem_cronologica = ['Feito', 'Revisado', 'Testado', 'Homologado', 'Implantado', 'Arquivado']
 dict_listas_passadas = {'Feito':0, 'Revisado':0, 'Testado':0, 'Homologado':0, 'Implantado':0}
-ano_inicial = 2016
+ano_inicial = int(configuracao['ANO_INICIAL'])
 
 quant_cards = 0
 quants_cards_total = 0
-"""
 for cartao in lista_cartoes_fechados_manutencao:
     quants_cards_total += 1
-    if cartao.card_created_date.year < 2016:
+    if cartao.card_created_date.year < ano_inicial:
         continue
     quant_cards += 1
     for movimento in cartao.list_movements():
@@ -82,14 +38,13 @@ for cartao in lista_cartoes_fechados_manutencao:
         if fonte['name'] not in dict_listas_passadas.keys():
             continue
         dict_listas_passadas[fonte['name']] += 1
-        print(dict_listas_passadas)"""
+        print(dict_listas_passadas)
 
+#taxa de retorno da homologação
 quants_cards_total_homologando = 0
 quant_cards_retornados_homologacao = 0
-#taxa de retorno da homologação
-"""
 for cartao in lista_cartoes_fechados_manutencao:
-    if cartao.card_created_date.year < 2016:
+    if cartao.card_created_date.year < ano_inicial:
         continue
     for movimento in cartao.list_movements():
         fonte = movimento['source']
@@ -103,75 +58,74 @@ for cartao in lista_cartoes_fechados_manutencao:
             quant_cards_retornados_homologacao += 1
             print('Retornados:',quant_cards_retornados_homologacao)
 
-taxa_retorno_homologacao = quant_cards_retornados_homologacao/quants_cards_total_homologando"""
-taxa_retorno_homologacao = 0.28
+taxa_retorno_homologacao = quant_cards_retornados_homologacao/quants_cards_total_homologando
 print('Taxa retorno: ', taxa_retorno_homologacao)
 
 
 #taxa de retorno dos testes
 quants_cards_total_testando = 0
 quant_cards_retornados_testes = 0
-# for cartao in lista_cartoes_fechados_manutencao:
-#     if cartao.card_created_date.year < 2016:
-#         continue
-#     for movimento in cartao.list_movements():
-#         fonte = movimento['source']
-#         destino = movimento['destination']
-#         if fonte['name']=='Testando':
-#             quants_cards_total_testando += 1
-#             print('Testando:',quants_cards_total_testando)
-#         else:
-#             continue
-#         if fonte['name']=='Testando' and destino['name'] not in ('Testado', 'Homologando', 'Homologado', 'Implantando', 'Implantado'):
-#             quant_cards_retornados_testes += 1
-#             print('Retornados testes:',quant_cards_retornados_testes)
+for cartao in lista_cartoes_fechados_manutencao:
+    if cartao.card_created_date.year < ano_inicial:
+        continue
+    for movimento in cartao.list_movements():
+        fonte = movimento['source']
+        destino = movimento['destination']
+        if fonte['name']=='Testando':
+            quants_cards_total_testando += 1
+            print('Testando:',quants_cards_total_testando)
+        else:
+            continue
+        if fonte['name']=='Testando' and destino['name'] not in ('Testado', 'Homologando',
+                                                                 'Homologado', 'Implantando', 'Implantado'):
+            quant_cards_retornados_testes += 1
+            print('Retornados testes:',quant_cards_retornados_testes)
 
-# taxa_retorno_testes = quant_cards_retornados_testes/quants_cards_total_testando
-taxa_retorno_testes = 0.08
+taxa_retorno_testes = quant_cards_retornados_testes/quants_cards_total_testando
 print('Taxa retorno testes: ', taxa_retorno_testes)
 
 #taxa de retorno da revisão
 quants_cards_total_revisando = 0
 quant_cards_retornados_revisao = 0
-# for cartao in lista_cartoes_fechados_manutencao:
-#     if cartao.card_created_date.year < 2016:
-#         continue
-#     for movimento in cartao.list_movements():
-#         fonte = movimento['source']
-#         destino = movimento['destination']
-#         if fonte['name']=='Revisando':
-#             quants_cards_total_revisando += 1
-#             print('Revisando:',quants_cards_total_revisando)
-#         else:
-#             continue
-#         if fonte['name']=='Revisando' and destino['name'] not in ('Revisado', 'Testando', 'Testado', 'Homologando', 'Homologado', 'Implantando', 'Implantado'):
-#             quant_cards_retornados_revisao += 1
-#             print('Retornados revisão:',quant_cards_retornados_revisao)
+for cartao in lista_cartoes_fechados_manutencao:
+    if cartao.card_created_date.year < ano_inicial:
+        continue
+    for movimento in cartao.list_movements():
+        fonte = movimento['source']
+        destino = movimento['destination']
+        if fonte['name']=='Revisando':
+            quants_cards_total_revisando += 1
+            print('Revisando:',quants_cards_total_revisando)
+        else:
+            continue
+        if fonte['name']=='Revisando' and destino['name'] not in ('Revisado', 'Testando', 'Testado',
+                                                        'Homologando', 'Homologado', 'Implantando', 'Implantado'):
+            quant_cards_retornados_revisao += 1
+            print('Retornados revisão:',quant_cards_retornados_revisao)
 
-# taxa_retorno_revisao = quant_cards_retornados_revisao/quants_cards_total_revisando
-taxa_retorno_revisao = 0.06
+taxa_retorno_revisao = quant_cards_retornados_revisao/quants_cards_total_revisando
 print('Taxa retorno revisão: ', taxa_retorno_revisao)
 
 #taxa de retorno do feito
 quants_cards_total_fazendo = 0
 quant_cards_retornados_feito = 0
-# for cartao in lista_cartoes_fechados_manutencao:
-#     if cartao.card_created_date.year < 2016:
-#         continue
-#     for movimento in cartao.list_movements():
-#         fonte = movimento['source']
-#         destino = movimento['destination']
-#         if fonte['name']=='Fazendo':
-#             quants_cards_total_fazendo += 1
-#             print('Fazendo:',quants_cards_total_fazendo)
-#         else:
-#             continue
-#         if fonte['name']=='Fazendo' and destino['name'] not in ('Feito', 'Revisando', 'Revisado', 'Testando', 'Testado', 'Homologando', 'Homologado', 'Implantando', 'Implantado'):
-#             quant_cards_retornados_feito += 1
-#             print('Retornados feito:',quant_cards_retornados_feito)
+for cartao in lista_cartoes_fechados_manutencao:
+    if cartao.card_created_date.year < ano_inicial:
+        continue
+    for movimento in cartao.list_movements():
+        fonte = movimento['source']
+        destino = movimento['destination']
+        if fonte['name']=='Fazendo':
+            quants_cards_total_fazendo += 1
+            print('Fazendo:',quants_cards_total_fazendo)
+        else:
+            continue
+        if fonte['name']=='Fazendo' and destino['name'] not in ('Feito', 'Revisando', 'Revisado', 'Testando',
+                                                'Testado', 'Homologando', 'Homologado', 'Implantando', 'Implantado'):
+            quant_cards_retornados_feito += 1
+            print('Retornados feito:',quant_cards_retornados_feito)
 
-# taxa_retorno_feito = quant_cards_retornados_feito/quants_cards_total_fazendo
-taxa_retorno_feito = 0.15
+taxa_retorno_feito = quant_cards_retornados_feito/quants_cards_total_fazendo
 print('Taxa retorno fazendo: ', taxa_retorno_feito)
 
 
@@ -204,9 +158,11 @@ for lista in nomes_listas_ordem_cronologica:
 agora = datetime.datetime.now()
 ano_atual = agora.year
 mes_atual = agora.month
+dia_atual= agora.day
 
 layout = go.Layout(
-    title='Aderência ao processo | Índice geral: '+str(percent_aderencia)[2:4]+'% | Período: 01/2016 a '+str(mes_atual)+'/'+str(ano_atual),
+    title='Aderência ao processo | Índice geral: '+str(percent_aderencia)[2:4]+'% | Período: 01/2016 a ' +
+          str(dia_atual)+'/'+str(mes_atual)+'/'+str(ano_atual),
     xaxis=dict(
         title='Listas CDMS - Manutenção',
         titlefont=dict(
@@ -241,7 +197,8 @@ data_aderencia = go.Bar(
     )
 
 valores_reais_percentuais_retorno = [0.15, 0.06, 0.08, 0.28, 0, 0]
-valores_percentuais_retorno = [round(0.15*0.53, 2), round(0.06*0.55, 2), round(0.08*0.54, 2), round((0.28*0.26), 2), 0, 0]
+valores_percentuais_retorno = [round(0.15*0.53, 2), round(0.06*0.55, 2), round(0.08*0.54, 2),
+                               round((0.28*0.26), 2), 0, 0]
 
 lista_quant_absoluta_retorno = [(str(valor)+'%') for valor in valores_reais_percentuais_retorno]
 data_retorno = go.Bar(
@@ -252,14 +209,17 @@ data_retorno = go.Bar(
             name='Taxa de Retorno'
     )
 
-caminho_arquivo = '/tmp/estatcdms'
-caminho_arquivos_passados = '/tmp/estatcdms/arquivos'
+
 data_geral = [data_aderencia, data_retorno]
 fig = go.Figure(data=data_geral, layout=layout)
-plotly.offline.plot(fig, filename='/tmp/aderencia')
-#plotly.offline.plot(data_aderencia, filename='aderencia.html')
+
+data_hoje = str(ano_atual) + '-' + str(mes_atual) + '-' + str(dia_atual) + '-' + str(agora.hour) + \
+            str(agora.minute) + str(agora.second)
+
+plotly.offline.plot(fig, filename=str(configuracao['PASTA_ARQUIVOS_ESTATISTICAS'])+'/aderencia-' + data_hoje)
 
 sys.exit()
+
 
 #tempo médio pos lista
 for lista in brd_manutencao.all_lists():
@@ -275,8 +235,10 @@ for lista in brd_manutencao.all_lists():
                 tempo_medio_dic[destino['name']] = padrao_entrada
             tempo_medio_dic[destino['name']]['entrada'] = data_movimento
             tempo_medio_dic[fonte['name']]['saida'] = data_movimento
-            if tempo_medio_dic[destino['name']]['entrada'] is not None and tempo_medio_dic[fonte['name']]['saida'] is not None:
-                tempo_medio_dic[destino['name']]['total'] += (tempo_medio_dic[fonte['name']]['saida'] - tempo_medio_dic[destino['name']]['entrada']).days
+            if tempo_medio_dic[destino['name']]['entrada'] is not None and \
+                            tempo_medio_dic[fonte['name']]['saida'] is not None:
+                tempo_medio_dic[destino['name']]['total'] += (tempo_medio_dic[fonte['name']]['saida'] -
+                                                              tempo_medio_dic[destino['name']]['entrada']).days
                 print(tempo_medio_dic[destino['name']]['total'])
                 tempo_medio_dic[destino['name']]['entrada'] = None
                 tempo_medio_dic[fonte['name']]['saida'] = None

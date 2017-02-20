@@ -88,6 +88,6 @@ def create_oauth_token(expiration=None, scope=None, key=None, secret=None, name=
     return access_token
 
 if __name__ == '__main__':
-    create_oauth_token()
+    create_oauth_token('never', 'read')
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
